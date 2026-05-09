@@ -1,0 +1,66 @@
+# ── Quick Dental Care — Apache / cPanel .htaccess ───────────────────────────
+# Place this in public_html/ (or your document root).
+# Requires: mod_rewrite, mod_headers, mod_expires (usually enabled on cPanel).
+# ─────────────────────────────────────────────────────────────────────────────
+
+Options -Indexes -MultiViews
+
+# ── Force HTTPS ──────────────────────────────────────────────────────────────
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} off
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# ── Block direct access to proxy config ───────────────────────────────────────
+<Files "config.php">
+  Order Allow,Deny
+  Deny from all
+</Files>
+<Files "config.example.php">
+  Order Allow,Deny
+  Deny from all
+</Files>
+
+# ── Security headers ─────────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# ── Static asset caching ──────────────────────────────────────────────────────
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css                  "access plus 1 year"
+  ExpiresByType application/javascript    "access plus 1 year"
+  ExpiresByType image/png                 "access plus 30 days"
+  ExpiresByType image/jpeg                "access plus 30 days"
+  ExpiresByType image/svg+xml             "access plus 30 days"
+  ExpiresByType font/woff2                "access plus 1 year"
+</IfModule>
+
+# ── Gzip compression ─────────────────────────────────────────────────────────
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json
+</IfModule>
+
+# ── SPA fallback (not strictly needed for single-page but good practice) ─────
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# ── Rate limiting via mod_ratelimit (if available) ───────────────────────────
+<IfModule mod_ratelimit.c>
+  <Location /proxy/proxy.php>
+    SetOutputFilter RATE_LIMIT
+    SetEnv rate-limit 100
+  </Location>
+</IfModule>

@@ -1,0 +1,32 @@
+# QDC Production — .gitignore
+# ─────────────────────────────────────────────────────────────────────────────
+# CRITICAL: Ensure these are NEVER committed to version control
+
+# ── Credentials (server-side) ────────────────────────────────────────────────
+proxy/config.php
+*.env
+.env.*
+secrets.*
+
+# ── Rate-limit state ─────────────────────────────────────────────────────────
+*.rl/
+rate_limits/
+
+# ── OS & editor ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.bak
+*.orig
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Node (if used for build tools) ───────────────────────────────────────────
+node_modules/
+dist/
+.npm/
